@@ -6,7 +6,7 @@ import { AppStyles } from '@ui/';
 class FirstPage extends Component {
   render() {
     return (
-      <View style={[AppStyles.whiteContainer, AppStyles.containerCentered]}>
+      <View style={[AppStyles.grayContainer, AppStyles.containerCentered]}>
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => this.props.navigator.push(routes.login)}>

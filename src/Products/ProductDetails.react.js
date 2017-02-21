@@ -77,7 +77,7 @@ class ProductDetails extends Component {
   componentWillMount(){
     curThis = this;
     var p_id = this.props.route.props.prod_id;
-    fetch("http://192.168.1.14:3000/api/v1/products/"+p_id, {method: "GET"})
+    fetch("http://192.168.0.113:3000/api/v1/products/"+p_id, {method: "GET"})
     .then((response) => response.json())
     .then((responseData) => {
       curThis.setState({ prod: responseData });

@@ -80,7 +80,7 @@ class HomePage extends Component {
   }
 
   toolBarOptions(icon){
-    if (icon.action == 'add-shopping-c')
+    if (icon.action == 'add-shopping-cart')
       this.props.navigator.push(routes.myCart);
     else if (icon.action == 'person')
       this.props.navigator.push(routes.productList);
