@@ -44,8 +44,6 @@ const propTypes = {
   route: PropTypes.object.isRequired,
 };
 
-url = "http://192.168.0.113:3000/api/v1/products";
-
 class ProductList extends Component {
   constructor(props, context) {
     super(props, context);
@@ -70,7 +68,6 @@ class ProductList extends Component {
       rightSide: false,
     };
   }
-
 
   tweenHandler(ratio){
     if(!this.state.tweenHandlerPreset){ return {} }

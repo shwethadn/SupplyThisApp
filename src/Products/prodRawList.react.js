@@ -17,14 +17,6 @@ import {
   Badge,
 } from 'react-native-material-ui/src';
 
-const drawerStyles = {
-  drawer: {
-    shadowColor: "#000000",
-    shadowOpacity: 0.8,
-    shadowRadius: 0,
-  }
-}
-
 const styles = StyleSheet.create({
   imageResize: {
     width: 90,
@@ -43,7 +35,7 @@ const propTypes = {
   route: PropTypes.object.isRequired,
 };
 
-url = "http://192.168.0.113:3000/api/v1/products";
+api_url = "http://192.168.0.113:3000/api/v1/products/search";
 
 class ProductListView extends Component {
   constructor(props) {
@@ -60,26 +52,51 @@ class ProductListView extends Component {
     };
   }
 
-  handleSearchChnages(){
-    var search_url = url;
-    var curThis = this;
-    const search = curThis.state.searchText;
-    if (search.length > 0 )
-      search_url = search_url+"?search="+search;
-    
-    products = fetch(search_url, {method: "GET"}).then((response) => response.json())
-      .then((responseData) => {
+  handleSearchChanges(){
+    var search = this.state.searchText;
+    var myRequest = new Request(api_url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }, 
+      body: JSON.stringify({
+        user_id: 852,
+        search_text: search,
+      })
+    });
+
+    fetch(myRequest)
+    .then((response) => response.json())
+    .then(function(responseData) {
       productsList = responseData;
-    }).done();
-  }
+    })
+    .catch(function(error) {
+        console.error(error);
+    });
+   }
 
   componentWillMount(){
-    var curThis = this;
-    fetch(url, {method: "GET"})
+    var this_val = this;
+    var myRequest = new Request(api_url, {
+      method: 'POST', 
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }, 
+      body: JSON.stringify({
+        user_id: 852,
+      })
+    });
+
+    fetch(myRequest)
     .then((response) => response.json())
-    .then((responseData) => {
-      curThis.setState({ products: responseData });
-    }).done();
+    .then(function(responseData) {
+      this_val.setState({products: responseData});
+    })
+    .catch(function(error) {
+      console.error(error);
+    });
   }
 
   show = () => {
@@ -141,7 +158,7 @@ class ProductListView extends Component {
   renderList = () => {
     var curThis = this;
     if(curThis.state.searchText.length > 0) 
-      curThis.handleSearchChnages();
+      curThis.handleSearchChanges();
     else
       productsList = curThis.state.products;
     if (productsList["products"] != undefined){
