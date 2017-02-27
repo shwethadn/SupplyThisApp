@@ -37,48 +37,6 @@ const styles = StyleSheet.create({
 class HomePage extends Component {
   static componentName = 'HomePage';
 
-  openDrawer(ele){
-    console.log("OPEN DRAWER");
-    return(
-      <View style={styles.drawcontainer}>
-        <Drawer>
-          <Drawer.Header >
-            <Drawer.Header.Account
-              avatar={<Avatar text={'A'} />}
-              accounts={[
-                { avatar: <Avatar text="B" /> },
-                { avatar: <Avatar text="C" /> },
-              ]}
-              footer={{
-                dense: true,
-                centerElement: {
-                  primaryText: 'Reservio',
-                  secondaryText: 'business@email.com',
-                },
-                rightElement: 'arrow-drop-down',
-              }}
-            />
-          </Drawer.Header>
-          <Drawer.Section
-            divider
-            items={[
-              { icon: 'bookmark-border', value: 'Notifications' },
-              { icon: 'today', value: 'Calendar', active: true },
-              { icon: 'people', value: 'Clients' },
-            ]}
-          />
-          <Drawer.Section
-            title="Personal"
-            items={[
-              { icon: 'info', value: 'Info' },
-              { icon: 'settings', value: 'Settings' },
-            ]}
-          />
-        </Drawer>
-      </View>
-    );
-  }
-
   toolBarOptions(icon){
     if (icon.action == 'add-shopping-cart')
       this.props.navigator.push(routes.myCart);
@@ -90,10 +48,9 @@ class HomePage extends Component {
     <View>
       <Toolbar
         leftElement="menu"
-        onLeftElementPress={this.openDrawer.bind(this)}
         centerElement="SupplyThis"
         rightElement={{
-          actions: ['add-shopping-cart', 'person'],
+          actions: ['person', 'add-shopping-cart'],
           menu: { labels: ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5', 'Item 5']},
         }}
         onRightElementPress={this.toolBarOptions.bind(this)}

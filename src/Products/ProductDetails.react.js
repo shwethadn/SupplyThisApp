@@ -80,7 +80,8 @@ class ProductDetails extends Component {
     fetch("http://192.168.0.113:3000/api/v1/products/"+p_id, {method: "GET"})
     .then((response) => response.json())
     .then((responseData) => {
-      curThis.setState({ prod: responseData });
+      console.log(responseData);
+      curThis.setState({ prod: responseData["product"] });
     }).done();
   }
 
@@ -108,8 +109,8 @@ class ProductDetails extends Component {
             onChangeText: value => this.setState({ searchText: value }),
             onSearchClosed: () => this.setState({ searchText: '' }),
           }}
-          rightElement="list"
-          onRightElementPress={() => this.props.navigator.pop()}
+          rightElement="home"
+          onRightElementPress={() => this.props.navigator.popToRoute(routes.homePage)}
         />
         <ScrollView>
           <Spacer size={20} />

@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { ToastAndroid, ScrollView, View, Platform, Animated,
   Easing, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import Modal from 'react-native-simple-modal';
 
 import routes from '../routes';
 import ProductDetails from './ProductDetails.react';
@@ -45,11 +46,20 @@ class ProductListView extends Component {
     this.scrollDirection = 0;
 
     this.state = {
+      open: false,
+      prod_id: '',
       products: [],
       selected: [],
       searchText: '',
       moveAnimated: new Animated.Value(0),
     };
+  }
+
+  toolBarOptions(icon){
+    if (icon.action == 'add-shopping-cart')
+      this.props.navigator.push(routes.myCart);
+    else if (icon.action == 'home')
+      this.props.navigator.pop();
   }
 
   handleSearchChanges(){
@@ -145,26 +155,65 @@ class ProductListView extends Component {
           onChangeText: value => this.setState({ searchText: value }),
           onSearchClosed: value => this.setState({ searchText: '' }),
         }}
-        rightElement="menu"
+        rightElement={{
+          actions: ['home', 'add-shopping-cart'],
+        }}
+        onRightElementPress={this.toolBarOptions.bind(this)}
       />
     );
   }
 
-  setProdID = (p_id) => {
+  pushProdDetails = (p_id) => {
     routes.productDetails.props.prod_id = p_id;
     this.props.navigator.push(routes.productDetails);
   }
 
+  pushRoute = (route) => {
+    this.props.navigator.push(route);
+  }
+
+  renderModal = () => {
+    console.log(this.state.prod_id);
+    return(
+      <Modal
+         offset={this.state.offset}
+         open={this.state.open}
+         modalDidOpen={() => console.log('modal did open')}
+         modalDidClose={() => this.setState({open: false})}
+         style={{alignItems: 'center'}}>
+         <View>
+            <Text style={{fontSize: 20, marginBottom: 10}}>Add to Cart</Text>
+            <TouchableOpacity
+               style={{margin: 5}}
+               onPress={() => this.setState({offset: -100})}>
+               <Text>Move modal up</Text>
+               <Text>product id: {this.state.prod_id}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+               style={{margin: 5}}
+               onPress={() => this.setState({offset: 0})}>
+               <Text>Reset modal position</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+               style={{margin: 5}}
+               onPress={() => this.setState({open: false})}>
+               <Text>Close modal</Text>
+            </TouchableOpacity>
+         </View>
+      </Modal>
+    );
+  }
+
   renderList = () => {
-    var curThis = this;
-    if(curThis.state.searchText.length > 0) 
-      curThis.handleSearchChanges();
+    var prodListThis = this;
+    if(prodListThis.state.searchText.length > 0) 
+      prodListThis.handleSearchChanges();
     else
-      productsList = curThis.state.products;
+      productsList = this.state.products;
     if (productsList["products"] != undefined){
       return productsList["products"].map(function(prod){
         return(
-          <TouchableOpacity key={prod.id} activeOpacity={0.8}>
+          <TouchableOpacity key={prod.id} activeOpacity={0.8} onPress={() => prodListThis.pushProdDetails(prod.id)}>
             <Card>
               <View style={{flex: 1, flexDirection: 'row'}}>
                 <View style={{paddingLeft: 20, width: 125, height: 200, backgroundColor: 'white'}}>
@@ -179,16 +228,14 @@ class ProductListView extends Component {
                 <View style={{width: 600, height: 200, backgroundColor: 'white'}}>
                   <Spacer/>
                   <Text h3>{prod.name}</Text>
-                  <Text numberOfLines={2}>Description: {prod.description}</Text>
                   <Text>Company: {prod.brand}</Text>
-                  <Text>Brand: {prod.brand}</Text>
-                  <Text>Packaging: {prod.quantity}</Text>
+                  <Text>Packing: {prod.quantity}</Text>
                   <View style={{flexDirection: 'row'}}>
                     <Text>Price: Rs.</Text><Text>{prod.price}</Text><Text>/-({prod.tax_type})</Text>
                   </View>
                   <Spacer size={20}/>
                   <Button raised accent text="Add to Cart"
-                    onPress={() => curThis.setProdID(prod.id) }
+                    onPress={() => prodListThis.setState({open: true, prod_id: prod.id})}
                   />
                 </View>
               </View>
@@ -221,6 +268,7 @@ class ProductListView extends Component {
           keyboardDismissMode="interactive">
           {this.renderList()}
         </ScrollView>
+        {this.renderModal(this.state.prod_id)}
       </View>
     );
   }
