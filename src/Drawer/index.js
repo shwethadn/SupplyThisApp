@@ -1,7 +1,7 @@
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { Component, PropTypes } from 'react';
 
-import { Avatar, Drawer, Toolbar } from 'react-native-material-ui';
+import { Avatar, Drawer, Toolbar, Button } from 'react-native-material-ui';
 import Container from '../Container';
 
 import { Spacer} from '@ui/';
@@ -16,6 +16,20 @@ const styles = StyleSheet.create({
 });
 
 class DrawerSpec extends Component {
+
+  logoutButton = () => {
+    var curThis = this;
+    if (user_token == '') {
+      return( <Button raised primary
+        text={'Log in'}
+        onPress={() => curThis.props.navigator.popToTop()}
+      />);
+    }
+    return( <Button raised primary
+        text={'Log out'}
+        onPress={() => curThis.props.navigator.pop()}
+      />);
+  }
   render() {
     return (
       <View style={styles.container}>
@@ -52,6 +66,7 @@ class DrawerSpec extends Component {
               { icon: 'settings', value: 'Settings' },
             ]}
           />
+          {this.logoutButton()}
         </Drawer>
       </View>
     );

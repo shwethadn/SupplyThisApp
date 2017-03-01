@@ -77,10 +77,9 @@ class ProductDetails extends Component {
   componentWillMount(){
     curThis = this;
     var p_id = this.props.route.props.prod_id;
-    fetch("http://192.168.0.113:3000/api/v1/products/"+p_id, {method: "GET"})
+    fetch(api_url+"products/"+p_id+"?access_token="+access_token, {method: "GET"})
     .then((response) => response.json())
     .then((responseData) => {
-      console.log(responseData);
       curThis.setState({ prod: responseData["product"] });
     }).done();
   }
@@ -93,6 +92,13 @@ class ProductDetails extends Component {
         />
       </View>
     );
+  }
+
+  toolBarOptions(icon){
+    if (icon.action == 'add-shopping-cart')
+      this.props.navigator.push(routes.myCart);
+    else if (icon.action == 'home')
+      this.props.navigator.popToRoute(routes.homePage);
   }
 
   render = () => {
@@ -109,8 +115,10 @@ class ProductDetails extends Component {
             onChangeText: value => this.setState({ searchText: value }),
             onSearchClosed: () => this.setState({ searchText: '' }),
           }}
-          rightElement="home"
-          onRightElementPress={() => this.props.navigator.popToRoute(routes.homePage)}
+          rightElement={{
+            actions: ['home', 'add-shopping-cart'],
+          }}
+          onRightElementPress={this.toolBarOptions.bind(this)}
         />
         <ScrollView>
           <Spacer size={20} />

@@ -71,7 +71,7 @@ class HomePage extends Component {
 
         <Button raised primary
           text={'PATIENTS'}
-          onPress={() => this.props.navigator.push(routes.productList)}
+          onPress={() => this.props.navigator.popToTop()}
         />
       </View>
     </View>

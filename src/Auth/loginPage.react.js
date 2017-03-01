@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 
 import routes from '../routes';
-import { Spacer, AppStyles, Text } from '@ui/';
+import { Spacer, AppStyles, Text, Alerts } from '@ui/';
 import { Card, Button } from 'react-native-material-ui';
 
 const propTypes = {
@@ -15,11 +15,57 @@ const propTypes = {
   route: PropTypes.object.isRequired,
 };
 
+sign_in_api_url = 'http://192.168.0.113:3000/api/v1/users/sign_in?access_token=';
+
 /* Component ==================================================================== */
 class Login extends Component {
   constructor(props) {
     super(props);
-    this.state = {email: "", password: ""}
+    this.state = {email: "", password: "",
+      resultMsg: {
+        status: '',
+        success: '',
+        error: '',
+      },
+    }
+  }
+
+  login = () => {
+    this.setState({ resultMsg: { status: 'One moment...' } });
+    var mainThis = this;
+    var myRequest = new Request(sign_in_api_url+access_token, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }, 
+      body: JSON.stringify({
+        email: this.state.email,
+        password: this.state.password,
+      })
+    });
+
+    fetch(myRequest)
+    .then((response) => response.json())
+    .then(function(responseData) {
+      if (responseData.success == true){
+        global.user = responseData.user.email;
+        global.user_token = responseData.user_token;
+        mainThis.setState({
+          resultMsg: { success: 'Awesome, you\'re now logged in!' },
+        }, () => {
+          setTimeout(() => {
+            user = 
+            mainThis.props.navigator.push(routes.homePage)
+          }, 100);
+        });
+      } else {
+        mainThis.setState({ resultMsg: {error: responseData.message } });
+      }
+    })
+    .catch(function(error) {
+        console.error(error);
+    });
   }
 
   render = () => {
@@ -33,6 +79,11 @@ class Login extends Component {
         </View>
 
         <Spacer size={70} />
+        <Alerts
+          status={this.state.resultMsg.status}
+          success={this.state.resultMsg.success}
+          error={this.state.resultMsg.error}
+        />
 
         <View style={[AppStyles.containerCentered]}>
           <Card>
@@ -45,6 +96,7 @@ class Login extends Component {
             <Spacer size={20} />
 
             <TextInput
+              secureTextEntry={true}
               style={{height: 40, width: 400, borderColor: 'gray', borderWidth: 2}}
               onChangeText={(password) => this.setState({password})}
               value={this.state.password}
@@ -53,7 +105,7 @@ class Login extends Component {
             <Spacer size={30} />
 
             <Button raised text={'Login'} primary
-              onPress={() => this.props.navigator.push(routes.homePage)}
+              onPress={() => this.login()}
             />
             <Spacer size={10} />
 

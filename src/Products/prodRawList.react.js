@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { ToastAndroid, ScrollView, View, Platform, Animated,
-  Easing, StyleSheet, Image, TouchableOpacity } from 'react-native';
+  Easing, StyleSheet, Image, TouchableOpacity, TextInput } from 'react-native';
 import Modal from 'react-native-simple-modal';
 
 import routes from '../routes';
@@ -36,8 +36,6 @@ const propTypes = {
   route: PropTypes.object.isRequired,
 };
 
-api_url = "http://192.168.0.113:3000/api/v1/products/search";
-
 class ProductListView extends Component {
   constructor(props) {
     super(props);
@@ -47,10 +45,11 @@ class ProductListView extends Component {
 
     this.state = {
       open: false,
-      prod_id: '',
+      prod: {},
       products: [],
       selected: [],
       searchText: '',
+      qty: '',
       moveAnimated: new Animated.Value(0),
     };
   }
@@ -64,7 +63,7 @@ class ProductListView extends Component {
 
   handleSearchChanges(){
     var search = this.state.searchText;
-    var myRequest = new Request(api_url, {
+    var myRequest = new Request(api_url+"products/search?access_token="+access_token, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -88,7 +87,7 @@ class ProductListView extends Component {
 
   componentWillMount(){
     var this_val = this;
-    var myRequest = new Request(api_url, {
+    var myRequest = new Request(api_url+"products/search?access_token="+access_token, {
       method: 'POST', 
       headers: {
         'Accept': 'application/json',
@@ -163,17 +162,55 @@ class ProductListView extends Component {
     );
   }
 
+  addToCart = () => {
+    var this_val = this;
+    var myRequest = new Request(api_url+"cart/cartitem?access_token="+access_token, {
+      method: 'POST', 
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }, 
+      body: JSON.stringify({
+        user_token: user_token,
+        product_id: this_val.state.prod.id,
+        quantity: this_val.state.qty,
+      })
+    });
+
+    fetch(myRequest)
+    .then((response) => response.json())
+    .then(function(responseData) {
+      console.log("adding product to cart respose");
+      console.log(responseData);
+      this_val.setState({open: false});
+    })
+    .catch(function(error) {
+      console.error(error);
+    });
+    // this.props.navigator.push(routes.myCart);
+  }
+
   pushProdDetails = (p_id) => {
     routes.productDetails.props.prod_id = p_id;
     this.props.navigator.push(routes.productDetails);
   }
 
-  pushRoute = (route) => {
-    this.props.navigator.push(route);
+  onChanged = (text) => {
+    let newText = '';
+    let numbers = '0123456789';
+
+    for (var i=0; i < text.length; i++) {
+      if(numbers.indexOf(text[i]) > -1 ) {
+        newText = newText + text[i];
+      }
+      else {
+        alert("please enter numbers only");
+      }
+      this.setState({ qty: newText });
+    }
   }
 
   renderModal = () => {
-    console.log(this.state.prod_id);
     return(
       <Modal
          offset={this.state.offset}
@@ -182,23 +219,21 @@ class ProductListView extends Component {
          modalDidClose={() => this.setState({open: false})}
          style={{alignItems: 'center'}}>
          <View>
-            <Text style={{fontSize: 20, marginBottom: 10}}>Add to Cart</Text>
-            <TouchableOpacity
-               style={{margin: 5}}
-               onPress={() => this.setState({offset: -100})}>
-               <Text>Move modal up</Text>
-               <Text>product id: {this.state.prod_id}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-               style={{margin: 5}}
-               onPress={() => this.setState({offset: 0})}>
-               <Text>Reset modal position</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-               style={{margin: 5}}
-               onPress={() => this.setState({open: false})}>
-               <Text>Close modal</Text>
-            </TouchableOpacity>
+            <Text h3>Add to Cart</Text>
+            <Text h4>product Name: {this.state.prod.name}</Text>
+            <Text>product id: {this.state.prod.id}</Text>
+            <TextInput 
+              style={styles.textInput}
+              keyboardType = 'numeric'
+              onChangeText = {(qty)=> this.onChanged(qty)}
+              value = {this.state.qty}
+              maxLength = {8}
+              placeholder = "Quantity"
+            />
+            <Spacer />
+            <Button raised accent text="Add to Cart"
+              onPress={() => this.addToCart()}
+            />
          </View>
       </Modal>
     );
@@ -235,7 +270,7 @@ class ProductListView extends Component {
                   </View>
                   <Spacer size={20}/>
                   <Button raised accent text="Add to Cart"
-                    onPress={() => prodListThis.setState({open: true, prod_id: prod.id})}
+                    onPress={() => prodListThis.setState({open: true, prod: prod, qty: prod.min_order+''})}
                   />
                 </View>
               </View>
@@ -268,7 +303,7 @@ class ProductListView extends Component {
           keyboardDismissMode="interactive">
           {this.renderList()}
         </ScrollView>
-        {this.renderModal(this.state.prod_id)}
+        {this.renderModal()}
       </View>
     );
   }

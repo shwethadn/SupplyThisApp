@@ -61,11 +61,10 @@ class ProductList extends Component {
       disabled: false,
       tweenHandlerPreset: null,
       acceptDoubleTap: false,
-      acceptTap: true,
+      acceptTap: false,
       acceptPan: true,
       tapToClose: false,
-      negotiatePan: false,
-      rightSide: false,
+      negotiatePan: true,
     };
   }
 
@@ -105,7 +104,7 @@ class ProductList extends Component {
         tapToClose={this.state.tapToClose}
         negotiatePan={this.state.negotiatePan}
         changeVal={this.state.changeVal}
-        side={this.state.rightSide ? 'right' : 'left'}
+        navigator={this.props.navigator}
         >
         <ProductListView
           drawerType={this.state.drawerType}
